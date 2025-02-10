@@ -1,322 +1,573 @@
 <!DOCTYPE html>
 <html lang="zh">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI驱动的情绪交易信号平台</title>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script> <!-- 引入 PapaParse -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
+    <script type="module">
+      import * as sudokuLib from "./sudoku-lib.js";
+
+      console.log(sudokuLib);
+
+      window.sudokuLib = sudokuLib;
+    </script>
+    <script type="module">
+      import * as o1js from "https://cdn.jsdelivr.net/npm/o1js@2.2.0/+esm";
+
+      console.log(o1js);
+
+      window.o1js = o1js;
+    </script>
+    <script type="module">
+      import { Update } from "./Update.js";
+      console.log(Update);
+      window.SudokuZkApp = Update;
+      // window.Sudoku=Sudoku;
+    </script>
+    <!-- 引入 PapaParse -->
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 20px;
-            background: linear-gradient(135deg, #1c1c1c, #2d2d2d);
-            color: #f0f0f0;
-        }
+      body {
+        font-family: "Arial", sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: linear-gradient(135deg, #1c1c1c, #2d2d2d);
+        color: #f0f0f0;
+      }
 
-        .container {
-            width: 90%;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+      .container {
+        width: 90%;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
 
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
 
-        h1 {
-            font-size: 36px;
-            color: #f8c040;
-            font-weight: bold;
-            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
-        }
+      h1 {
+        font-size: 36px;
+        color: #f8c040;
+        font-weight: bold;
+        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+      }
 
-        .settings,
-        .data-display,
-        .signals {
-            background: #333;
-            border-radius: 12px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-            padding: 20px;
-            margin-bottom: 30px;
-            transition: transform 0.3s ease;
-        }
+      .settings,
+      .data-display,
+      .signals {
+        background: #333;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        padding: 20px;
+        margin-bottom: 30px;
+        transition: transform 0.3s ease;
+      }
 
-        .settings:hover,
-        .data-display:hover,
-        .signals:hover {
-            transform: translateY(-5px);
-        }
+      .settings:hover,
+      .data-display:hover,
+      .signals:hover {
+        transform: translateY(-5px);
+      }
 
-        .settings {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #444;
-            border: 1px solid #555;
-        }
+      .settings {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #444;
+        border: 1px solid #555;
+      }
 
-        .settings label {
-            font-size: 18px;
-            color: #f8c040;
-        }
+      .settings label {
+        font-size: 18px;
+        color: #f8c040;
+      }
 
-        .settings input {
-            padding: 12px 20px;
-            border-radius: 8px;
-            border: 1px solid #666;
-            font-size: 16px;
-            background-color: #555;
-            color: #fff;
-            transition: all 0.3s;
-        }
+      .settings input {
+        padding: 12px 20px;
+        border-radius: 8px;
+        border: 1px solid #666;
+        font-size: 16px;
+        background-color: #555;
+        color: #fff;
+        transition: all 0.3s;
+      }
 
-        .settings input:focus {
-            outline: none;
-            border-color: #f8c040;
-            background-color: #666;
-        }
+      .settings input:focus {
+        outline: none;
+        border-color: #f8c040;
+        background-color: #666;
+      }
 
-        button {
-            padding: 12px 25px;
-            background-color: #f8c040;
-            color: #333;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-        }
+      button {
+        padding: 12px 25px;
+        background-color: #f8c040;
+        color: #333;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+      }
 
-        button:hover {
-            background-color: #e0a200;
-            transform: scale(1.05);
-        }
+      button:hover {
+        background-color: #e0a200;
+        transform: scale(1.05);
+      }
 
-        .data-display h2,
-        .signals h2 {
-            color: #f8c040;
-            margin-bottom: 20px;
-            font-size: 24px;
-            text-transform: uppercase;
-            font-weight: bold;
-        }
+      .data-display h2,
+      .signals h2 {
+        color: #f8c040;
+        margin-bottom: 20px;
+        font-size: 24px;
+        text-transform: uppercase;
+        font-weight: bold;
+      }
 
-        .table-wrapper {
-            overflow-x: auto;
-        }
+      .table-wrapper {
+        overflow-x: auto;
+      }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            animation: fadeIn 1s ease-in-out;
-        }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        animation: fadeIn 1s ease-in-out;
+      }
 
-        th, td {
-            padding: 15px;
-            text-align: center;
-            border: 1px solid #444;
-            font-size: 16px;
-        }
+      th,
+      td {
+        padding: 15px;
+        text-align: center;
+        border: 1px solid #444;
+        font-size: 16px;
+      }
 
-        th {
-            background-color: #f8c040;
-            color: #333;
-        }
+      th {
+        background-color: #f8c040;
+        color: #333;
+      }
 
-        .positive {
-            color: #28a745;
-            font-weight: bold;
-        }
+      .positive {
+        color: #28a745;
+        font-weight: bold;
+      }
 
-        .neutral {
-            color: #ffc107;
-            font-weight: bold;
-        }
+      .neutral {
+        color: #ffc107;
+        font-weight: bold;
+      }
 
-        .negative {
-            color: #dc3545;
-            font-weight: bold;
-        }
+      .negative {
+        color: #dc3545;
+        font-weight: bold;
+      }
 
-        .signal {
-            background-color: #444;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-        }
+      .signal {
+        background-color: #444;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+      }
 
-        .signal:hover {
-            transform: translateY(-3px);
-        }
+      .signal:hover {
+        transform: translateY(-3px);
+      }
 
-        .signal .icon {
-            font-size: 28px;
-            margin-right: 15px;
-        }
+      .signal .icon {
+        font-size: 28px;
+        margin-right: 15px;
+      }
 
-        .positive-icon {
-            color: #28a745;
-        }
+      .positive-icon {
+        color: #28a745;
+      }
 
-        .negative-icon {
-            color: #dc3545;
-        }
+      .negative-icon {
+        color: #dc3545;
+      }
 
-        .neutral-icon {
-            color: #ffc107;
-        }
+      .neutral-icon {
+        color: #ffc107;
+      }
+      .button {
+        cursor: pointer;
+        user-select: none;
+      }
+      .button:hover {
+        color: #ffc107;
+      }
+      .button:active {
+        color: #ffc10799;
+      }
 
-        /* Fade In Animation */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
+      /* Fade In Animation */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
         }
-
+        to {
+          opacity: 1;
+        }
+      }
     </style>
-</head>
-<body>
-
-<div id="app" class="container">
-    <div class="header">
+  </head>
+  <body>
+    <div id="app" class="container">
+      <div class="header">
         <h1>AI驱动的情绪交易信号平台</h1>
-    </div>
+      </div>
 
-    <!-- 上传 CSV 文件 -->
-    <div class="settings">
+      <!-- 上传 CSV 文件 -->
+      <div class="settings">
         <div>
-            <label for="csvFile">上传 CSV 文件：</label>
-            <input type="file" id="csvFile" @change="handleFileUpload" />
+          <label for="csvFile">上传 CSV 文件：</label>
+          <input type="file" id="csvFile" @change="handleFileUpload" />
         </div>
-    </div>
+      </div>
 
-    <!-- 策略设置 -->
-    <div class="settings">
+      <!-- 策略设置 -->
+      <div class="settings">
         <div>
-            <label for="threshold">情绪阈值：</label>
-            <input type="number" v-model="threshold" min="0" max="1" step="0.1" />
+          <label for="threshold">情绪阈值：</label>
+          <input type="number" v-model="threshold" min="0" max="1" step="0.1" />
         </div>
         <button @click="updateThreshold">
-            <i class="fas fa-sync-alt"></i> 更新阈值
+          <i class="fas fa-sync-alt"></i> 更新阈值
         </button>
-    </div>
-
-    <!-- 情绪分析结果 -->
-    <div class="data-display">
+      </div>
+      <div class="data-display">
+        <h2><i class="fas fa-wallet"></i> 我的钱包</h2>
+        <div @click="getAccountData" class="button">查看我的钱包</div>
+      </div>
+      <!-- 情绪分析结果 -->
+      <div class="data-display">
         <h2><i class="fas fa-chart-line"></i> 情绪分析结果</h2>
         <div class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>消息来源</th>
-                        <th>twitter链接</th>
-                        <th>推文</th>
-                        <th>时间</th>
-                        <th>情绪得分</th>
-                        <th>情绪类型</th>
-                        <th>交易信号</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="(data, index) in sentimentData" :key="index">
-                        <td>{{ data.source }}</td>
-                        <td>{{ data.twitterUrl }}</td>
-                        <td>{{ data.fullText }}</td>
-                        <td>{{ data.date }}</td>
-                        <td>{{ data.sentimentScore }}</td>
-                        <td :class="getSentimentClass(data.sentimentScore)">
-                            {{ getSentimentType(data.sentimentScore) }}
-                        </td>
-                        <td>{{ data.signal }}</td>
-                    </tr>
-                </tbody>
-            </table>
+          <table>
+            <thead>
+              <tr>
+                <th>消息来源</th>
+                <th>twitter链接</th>
+                <th>推文</th>
+                <th>时间</th>
+                <th>情绪得分</th>
+                <th>情绪类型</th>
+                <th>交易信号</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(data, index) in sentimentData" :key="index">
+                <td>{{ data.source }}</td>
+                <td>{{ data.twitterUrl }}</td>
+                <td>{{ data.fullText }}</td>
+                <td>{{ data.date }}</td>
+                <td>{{ data.sentimentScore }}</td>
+                <td :class="getSentimentClass(data.sentimentScore)">
+                  {{ getSentimentType(data.sentimentScore) }}
+                </td>
+                <td>{{ data.signal }}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-    </div>
+      </div>
 
-    <!-- 生成的交易信号 -->
-    <div class="signals">
+      <!-- 生成的交易信号 -->
+      <div class="signals">
         <h2><i class="fas fa-bolt"></i> 生成的交易信号</h2>
         <div v-for="signal in signals" :key="signal.id" class="signal">
-            <i :class="getSignalIcon(signal.type) + ' icon'"></i>
-            <span>{{ signal.type }} - Price: {{ signal.price }} - Action: {{ signal.action }}</span>
+          <i :class="getSignalIcon(signal.type) + ' icon'"></i>
+          <span
+            >{{ signal.type }} - Price: {{ signal.price }} - Action: {{
+            signal.action }}</span
+          >
         </div>
+      </div>
     </div>
-</div>
 
-<script>
-    new Vue({
-        el: '#app',
+    <script>
+      new Vue({
+        el: "#app",
         data: {
-            sentimentData: [
-                { source: "Twitter", sentimentScore: 0.8, signal: "Buy" },
-                { source: "Discord", sentimentScore: 0.3, signal: "Sell" },
-                { source: "Twitter", sentimentScore: 0.5, signal: "Hold" },
-            ],
-            signals: [
-                { id: 1, type: "Buy", price: "$1000", action: "Execute" },
-                { id: 2, type: "Sell", price: "$800", action: "Execute" },
-            ],
-            threshold: 0.5,
+          sentimentData: [
+            { source: "Twitter", sentimentScore: 0.8, signal: "Buy" },
+            { source: "Discord", sentimentScore: 0.3, signal: "Sell" },
+            { source: "Twitter", sentimentScore: 0.5, signal: "Hold" },
+          ],
+          signals: [
+            { id: 1, type: "Buy", price: "$1000", action: "Execute" },
+            { id: 2, type: "Sell", price: "$800", action: "Execute" },
+          ],
+          threshold: 0.5,
+          accounts: {},
         },
         methods: {
-            updateThreshold() {
-                alert(`情绪阈值已更新为：${this.threshold}`);
-            },
-            getSentimentClass(score) {
-                if (score >= this.threshold) return "positive";
-                else if (score < this.threshold && score > 0.4) return "neutral";
-                else return "negative";
-            },
-            getSentimentType(score) {
-                if (score >= this.threshold) return "正面";
-                else if (score < this.threshold && score > 0.4) return "中性";
-                else return "负面";
-            },
-            getSignalIcon(type) {
-                if (type === "Buy") return "fas fa-arrow-up positive-icon";
-                else if (type === "Sell") return "fas fa-arrow-down negative-icon";
-                else return "fas fa-equals neutral-icon";
-            },
-            handleFileUpload(event) {
-                const file = event.target.files[0];
-                if (file && file.type === 'text/csv') {
-                    Papa.parse(file, {
-                        complete: (results) => {
-                            this.parseCSVData(results.data);
-                        },
-                        header: true,
-                    });
-                } else {
-                    alert('请上传有效的 CSV 文件');
-                }
-            },
-            parseCSVData(data) {
-                this.sentimentData = [];
-                data.forEach(row => {
-                    const sentimentScore = parseFloat(row['情绪得分']);
-                    this.sentimentData.push({
-                        source: row['消息来源'],
-                        sentimentScore: sentimentScore,
-                        signal: row['交易信号'],
-                        date: row['时间'],
-                        twitterUrl: row['twitter链接'],
-                        fullText: row['推文']
-                    });
-                });
-            },
-        },
-    });
-</script>
+          updateThreshold() {
+            alert(`情绪阈值已更新为：${this.threshold}`);
+          },
+          getSentimentClass(score) {
+            if (score >= this.threshold) return "positive";
+            else if (score < this.threshold && score > 0.4) return "neutral";
+            else return "negative";
+          },
+          getSentimentType(score) {
+            if (score >= this.threshold) return "正面";
+            else if (score < this.threshold && score > 0.4) return "中性";
+            else return "负面";
+          },
+          getSignalIcon(type) {
+            if (type === "Buy") return "fas fa-arrow-up positive-icon";
+            else if (type === "Sell") return "fas fa-arrow-down negative-icon";
+            else return "fas fa-equals neutral-icon";
+          },
+          handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file && file.type === "text/csv") {
+              Papa.parse(file, {
+                complete: (results) => {
+                  this.parseCSVData(results.data);
+                },
+                header: true,
+              });
+            } else {
+              alert("请上传有效的 CSV 文件");
+            }
+          },
+          async loopUntilAccountExists({
+            account,
+            eachTimeNotExist,
+            isZkAppAccount,
+          }) {
+            for (;;) {
+              let response = await window.o1js.fetchAccount({
+                publicKey: account,
+              });
+              let accountExists = response.account !== undefined;
+              if (isZkAppAccount) {
+                accountExists = response.account?.zkapp?.appState !== undefined;
+              }
+              if (!accountExists) {
+                eachTimeNotExist();
+                await new Promise((resolve) => setTimeout(resolve, 5000));
+              } else {
+                // TODO add optional check that verification key is correct once this is available in o1js
+                return response.account;
+              }
+            }
+          },
 
-</body>
+          parseCSVData(data) {
+            this.sentimentData = [];
+            data.forEach((row) => {
+              const sentimentScore = parseFloat(row["情绪得分"]);
+              this.sentimentData.push({
+                source: row["消息来源"],
+                sentimentScore: sentimentScore,
+                signal: row["交易信号"],
+                date: row["时间"],
+                twitterUrl: row["twitter链接"],
+                fullText: row["推文"],
+              });
+            });
+          },
+          async getAccountData() {
+            try {
+              // Accounts is an array of string Mina addresses.
+              console.log(window);
+              accounts = await window.mina.requestAccounts();
+
+              // Show first 6 and last 4 characters of user's Mina account.
+              const display = `${accounts[0].slice(0, 6)}...${accounts[0].slice(
+                -4
+              )}`;
+              // console.log(display);
+              // console.log(window.o1js);
+              this.getInteractWithMina();
+            } catch (err) {
+              // If the user has a wallet installed but has not created an account, an
+              // exception will be thrown. Consider showing "not connected" in your UI.
+              console.log(err.message);
+            }
+          },
+          
+          async getInteractWithMina2(){
+            const { cloneSudoku, generateSudoku, solveSudoku } = window.sudokuLib;
+            const { AccountUpdate, Mina, PrivateKey } = window.o1js;
+            console.log(Mina)
+            // const Mina = window.o1js.Mina;
+            const SudokuZkApp = window.SudokuZkApp;
+            const Local = await Mina.LocalBlockchain();
+            Mina.setActiveInstance(Local);
+            const sender = Local.testAccounts[0];
+            const senderKey = sender.key;
+            const sudoku = generateSudoku(0.5);
+            const zkAppPrivateKey = PrivateKey.fromBase58(
+              'EKFE7Q2Q5eTPS69oG51V8y6aXJ2gEBiuSvAqdWxgM3t61hSz3eFr'
+            );
+            const zkAppAddress = zkAppPrivateKey.toPublicKey();
+            // create an instance of the smart contract
+            const zkApp = new SudokuZkApp(zkAppAddress);
+            console.log('Deploying and initializing Sudoku...');
+            await SudokuZkApp.compile();
+            let tx = await Mina.transaction(sender, async () => {
+              AccountUpdate.fundNewAccount(sender);
+              await zkApp.deploy();
+              await zkApp.update(Sudoku.from(sudoku));
+              await zkApp.update2();
+            });
+            await tx.prove();
+          },
+          async getInteractWithMina() {
+            const Network = window.o1js.Mina.Network(
+              "https://api.minascan.io/node/devnet/v1/graphql"
+            );
+            window.o1js.Mina.setActiveInstance(Network);
+
+            const transactionFee = 100_000_0000;
+
+            // const deployAlias = process.argv[2];
+            // const deployerKeysFileContents = fs.readFileSync(
+            //   "keys/" + deployAlias + ".json",
+            //   "utf8"
+            // );
+            const deployerPrivateKeyBase58 =
+              "EKEpwQ9sUKTuZLtQUT8KD19oBQoPTQXhdhrAuF8nwXWSHwTNKWDZ";
+            const deployerPrivateKey = window.o1js.PrivateKey.fromBase58(
+              deployerPrivateKeyBase58
+            );
+            const deployerPublicKey = deployerPrivateKey.toPublicKey();
+
+            const zkAppPrivateKey = window.o1js.PrivateKey.fromBase58(
+              "EKFE7Q2Q5eTPS69oG51V8y6aXJ2gEBiuSvAqdWxgM3t61hSz3eFr"
+            );
+
+            // ----------------------------------------------------
+
+            let account = await this.loopUntilAccountExists({
+              account: deployerPublicKey,
+              eachTimeNotExist: () => {
+                console.log(
+                  "Deployer account does not exist. " +
+                    "Request funds at faucet " +
+                    "https://faucet.minaprotocol.com/?address=" +
+                    deployerPublicKey.toBase58()
+                );
+              },
+              isZkAppAccount: false,
+            });
+
+            console.log(
+              `Using fee payer account with nonce ${account.nonce}, balance ${account.balance}`
+            );
+
+            // ----------------------------------------------------
+
+            console.log("Compiling smart contract...");
+            // let { verificationKey } = await Square.compile();
+            // console.log(window.SudokuZkApp.compile)
+            // await window.SudokuZkApp.compile();
+            // console.log("compile success")
+            const zkAppPublicKey = zkAppPrivateKey.toPublicKey();
+            console.log(zkAppPublicKey)
+            let zkapp = new window.SudokuZkApp(zkAppPublicKey);
+
+            // Programmatic deploy:
+            //   Besides the CLI, you can also create accounts programmatically. This is useful if you need
+            //   more custom account creation - say deploying a zkApp to a different key than the fee payer
+            //   key, programmatically parameterizing a zkApp before initializing it, or creating Smart
+            //   Contracts programmatically for users as part of an application.
+            // await deploy(deployerPrivateKey, zkAppPrivateKey, zkapp);
+
+            await this.loopUntilAccountExists({
+              account: zkAppPublicKey,
+              eachTimeNotExist: () =>
+                console.log("waiting for zkApp account to be deployed..."),
+              isZkAppAccount: true,
+            });
+
+            //console.log(`current value of num is ${num}`);
+
+            // ----------------------------------------------------
+
+            let transaction = await window.o1js.Mina.transaction(
+              { sender: deployerPublicKey, fee: transactionFee },
+              async () => {
+                try{
+                  // await SudokuZkApp.compile()
+                  // await zkapp.update2();
+                  //  const YourSmartContractInstance = new YourSmartContract(zkAppAddress);
+                  // await SudokuZkApp.compile()
+                  // await zkapp.compile()
+                  console.log(window.SudokuZkApp.compile)
+                  await window.SudokuZkApp.compile();
+                  await zkapp.incrementSecret(window.o1js.Field(1));
+                }catch(e){
+                  // throw(e)
+                  console.log(e)
+                }
+                
+
+                //await zkapp.incrementSecret(num.add(num));
+              }
+            );
+
+            // fill in the proof - this can take a while...
+            console.log("Creating an execution proof...");
+            let time0 = performance.now();
+            await transaction.prove();
+            let time1 = performance.now();
+            console.log(`creating proof took ${(time1 - time0) / 1e3} seconds`);
+
+            // sign transaction with the deployer account
+            transaction.sign([deployerPrivateKey]);
+
+            console.log("Sending the transaction...");
+            let pendingTransaction = await transaction.send();
+
+            // ----------------------------------------------------
+
+            if (pendingTransaction.status === "rejected") {
+              console.log("error sending transaction (see above)");
+              process.exit(0);
+            }
+
+            console.log(
+              `See transaction at https://minascan.io/devnet/tx/${pendingTransaction.hash}
+                Waiting for transaction to be included...`
+            );
+            await pendingTransaction.wait();
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
+<!-- 
+            console.log("Sending the transaction...");
+            let pendingTransaction = await transaction.send();
+
+            // ----------------------------------------------------
+
+            if (pendingTransaction.status === "rejected") {
+              console.log("error sending transaction (see above)");
+              process.exit(0);
+            }
+
+            console.log(
+              `See transaction at https://minascan.io/devnet/tx/${pendingTransaction.hash}
+                Waiting for transaction to be included...`
+            );
+            await pendingTransaction.wait();
+          },
+        },
+      }); -->
+    </script>
+  </body>
 </html>
